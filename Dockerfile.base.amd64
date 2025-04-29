@@ -1,12 +1,10 @@
-# Built with arch: amd64 flavor: lxde image: ubuntu:20.04
-#
 ################################################################################
 # base system
 ################################################################################
 
 #FROM ubuntu:20.04 as system
 #FROM ros:foxy-ros-base as system
-FROM ros:galactic-ros-base as system
+FROM ros:jazzy-ros-base as system
 
 
 RUN sed -i 's#http://archive.ubuntu.com/ubuntu/#mirror://mirrors.ubuntu.com/mirrors.txt#' /etc/apt/sources.list;
@@ -28,7 +26,8 @@ RUN apt update \
 RUN apt update \
     && apt install -y --no-install-recommends --allow-unauthenticated \
         xvfb x11vnc \
-        vim-tiny firefox ttf-ubuntu-font-family ttf-wqy-zenhei  \
+#        vim-tiny firefox ttf-ubuntu-font-family ttf-wqy-zenhei  \
+        vim-tiny firefox ttf-wqy-zenhei  \
     && apt autoclean -y \
     && apt autoremove -y \
     && rm -rf /var/lib/apt/lists/*
@@ -43,7 +42,8 @@ RUN apt update \
 
 RUN apt update \
     && apt install -y --no-install-recommends --allow-unauthenticated \
-        lxde gtk2-engines-murrine gnome-themes-standard gtk2-engines-pixbuf gtk2-engines-murrine arc-theme \
+#        lxde gtk2-engines-murrine gnome-themes-standard gtk2-engines-pixbuf gtk2-engines-murrine arc-theme \
+        lxde gtk2-engines-murrine gtk2-engines-pixbuf gtk2-engines-murrine arc-theme \
     && apt autoclean -y \
     && apt autoremove -y \
     && rm -rf /var/lib/apt/lists/*
@@ -66,11 +66,19 @@ RUN apt update \
     && ln -s /usr/bin/ffmpeg /usr/local/ffmpeg/ffmpeg
 
 # python library
-COPY rootfs/usr/local/lib/web/backend/requirements.txt /tmp/
 RUN apt-get update \
     && dpkg-query -W -f='${Package}\n' > /tmp/a.txt \
-    && apt-get install -y python3-pip python3-dev build-essential \
-	&& pip3 install setuptools wheel && pip3 install -r /tmp/requirements.txt \
+    && apt-get install -y python3-pip python3-dev build-essential pipx \
+	&& apt-get install -y python3-setuptools python3-wheel
+
+COPY rootfs/usr/local/lib/web/backend/requirements.txt /tmp/
+RUN apt-get update \
+#    && python3 -m venv .venv \
+#    && . .venv/bin/activate \
+#    && python3 -m pip install -r /tmp/requirements.txt
+     && pip install --break-system-packages -r /tmp/requirements.txt
+
+RUN apt-get update \
     && ln -s /usr/bin/python3 /usr/local/bin/python \
     && dpkg-query -W -f='${Package}\n' > /tmp/b.txt \
     && apt-get remove -y `diff --changed-group-format='%>' --unchanged-group-format='' /tmp/a.txt /tmp/b.txt | xargs` \
@@ -84,7 +92,7 @@ RUN apt-get update \
 # builder
 ################################################################################
 # FROM ubuntu:20.04 as builder
-FROM ros:galactic-ros-base as builder
+FROM ros:jazzy-ros-base as builder
 
 
 RUN sed -i 's#http://archive.ubuntu.com/ubuntu/#mirror://mirrors.ubuntu.com/mirrors.txt#' /etc/apt/sources.list;
@@ -94,7 +102,7 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends curl ca-certificates gnupg patch
 
 # nodejs
-RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - \
+RUN curl -sL https://deb.nodesource.com/setup_18.x | bash - \
     && apt-get install -y nodejs
 
 # yarn
@@ -151,5 +159,5 @@ RUN apt update \
 # Prerequisite for SlicerROS2
 #
 RUN apt update \
-    && apt install -y ~nros-galactic-rqt* \
-    && apt install -y ros-galactic-turtlesim
+    && apt install -y ~nros-jazzy-rqt* \
+    && apt install -y ros-jazzy-turtlesim
