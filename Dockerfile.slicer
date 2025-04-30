@@ -7,7 +7,7 @@
 #FROM ubuntu:20.04 as system
 #FROM ros:foxy-ros-base as system
 #FROM ros:galactic-ros-base as system
-FROM rosmed/docker-ubuntu-vnc-desktop-base:ismr2023 as system
+FROM rosmed/docker-ubuntu-vnc-desktop-base:ismr2025 as system
 
 ################################################################################
 # Libraries for ISMR 2021 Tutorial
@@ -19,7 +19,7 @@ WORKDIR /root
 #
 RUN mkdir /root/slicer \
     && cd /root/slicer \
-    && git clone --branch v5.2.2 https://github.com/slicer/Slicer \
+    && git clone --branch v5.8.1 https://github.com/slicer/Slicer \
     && mkdir Slicer-SuperBuild-Release \
     && cd Slicer-SuperBuild-Release \
     && cmake -DCMAKE_BUILD_TYPE:STRING=Release -DSlicer_USE_SYSTEM_OpenSSL=ON ../Slicer \

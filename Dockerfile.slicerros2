@@ -8,7 +8,7 @@
 #FROM ubuntu:20.04 as system
 #FROM ros:foxy-ros-base as system
 #FROM ros:galactic-ros-base as system
-FROM rosmed/docker-ubuntu-vnc-desktop-slicer:ismr2023 as system
+FROM rosmed/docker-ubuntu-vnc-desktop-slicer:ismr2025 as system
 
 
 #
@@ -19,12 +19,12 @@ WORKDIR /root
 RUN apt install -y python3-vcstool python3-colcon-common-extensions \
     && apt install -y python3-pykdl \
     && apt install -y libxml2-dev libraw1394-dev libncurses5-dev qtcreator swig sox espeak cmake-curses-gui cmake-qt-gui git subversion gfortran libcppunit-dev libqt5xmlpatterns5-dev libbluetooth-dev \
-    && apt install -y ros-galactic-joint-state-publisher* ros-galactic-xacro
+    && apt install -y ros-jazzy-joint-state-publisher* ros-jazzy-xacro
 
 WORKDIR /root
 RUN mkdir -p /root/ros2_ws/src \
     && cd /root/ros2_ws/src \
-    && /bin/bash -c 'source /opt/ros/galactic/setup.sh; vcs import --input https://raw.githubusercontent.com/jhu-dvrk/dvrk_robot_ros2/main/dvrk.vcs --recursive'
+    && /bin/bash -c 'source /opt/ros/jazzy/setup.sh; vcs import --input https://raw.githubusercontent.com/jhu-dvrk/dvrk_robot_ros2/main/dvrk.vcs --recursive'
 
 
 #
@@ -43,7 +43,7 @@ RUN mkdir -p /root/ros2_ws/src \
     && git clone https://github.com/jhu-saw/ros2_sensable_omni_model \
     && git clone https://github.com/rosmed/slicer_ros2_module \
     && cd /root/ros2_ws \
-    && /bin/bash -c 'source /opt/ros/galactic/setup.sh; colcon build --cmake-args -DSlicer_DIR:PATH=/root/slicer/Slicer-SuperBuild-Release/Slicer-build -DCMAKE_BUILD_TYPE=Release'
+    && /bin/bash -c 'source /opt/ros/jazzy/setup.sh; colcon build --cmake-args -DSlicer_DIR:PATH=/root/slicer/Slicer-SuperBuild-Release/Slicer-build -DCMAKE_BUILD_TYPE=Release'
 
 #
 # Install 3D Slicer Extensions
@@ -67,7 +67,7 @@ RUN /bin/bash -c "export EXTENSION_DIR=/root/slicer/packages; xvfb-run --auto-se
 
 # SlicerROS2
 WORKING /root
-RUN /bin/bash -c "export MODULE_DIR=/root/ros2_ws/build/ROS2/lib/Slicer-5.2/qt-loadable-modules; xvfb-run --auto-servernum /root/slicer/Slicer-SuperBuild-Release/Slicer-build/Slicer --no-main-window --no-splash --python-script /root/slicer/install-module.py"
+RUN /bin/bash -c "export MODULE_DIR=/root/ros2_ws/build/ROS2/lib/Slicer-5.8/qt-loadable-modules; xvfb-run --auto-servernum /root/slicer/Slicer-SuperBuild-Release/Slicer-build/Slicer --no-main-window --no-splash --python-script /root/slicer/install-module.py"
 
 # Trajectory Tracing
 WORKDIR /root
@@ -92,6 +92,6 @@ RUN cd /root/slicer/modules \
 
 
 # ISMR Tutorial Data
-WORKDIR /root
-RUN cd /root \
-    && git clone https://github.com/rosmed/ismr2023_files
+#WORKDIR /root
+#RUN cd /root \
+#    && git clone https://github.com/rosmed/ismr2023_files
