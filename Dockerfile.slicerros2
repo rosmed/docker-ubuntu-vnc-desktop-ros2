@@ -12,7 +12,7 @@ FROM rosmed/docker-ubuntu-vnc-desktop-slicer:ismr2025 as system
 
 
 #
-# Additional ROS2 packages (dVRK)
+# Additional ROS2 packages
 #
 
 #WORKDIR /root
@@ -56,12 +56,14 @@ COPY slicer/install-extension.py /root/slicer
 COPY slicer/install-module.py /root/slicer
 COPY slicer/start-slicer-ros2.bash /root
 COPY slicer/install-segmentation-unet.bash /root
+RUN mkdir -p /root/slicer/packages
+COPY packages/* /root/slicer/packages
+
 WORKDIR /root
 RUN cd /root \
     && chmod 755 start-slicer-ros2.bash \
     && chmod 755 install-segmentation-unet.bash
 
-RUN rm /root/slicer/packages/Slicer*.tar.gz
 RUN /bin/bash -c "export EXTENSION_DIR=/root/slicer/packages; xvfb-run --auto-servernum /root/slicer/Slicer-SuperBuild-Release/Slicer-build/Slicer --no-main-window --no-splash --python-script /root/slicer/install-extension.py" \
 
 #
@@ -74,7 +76,7 @@ RUN /bin/bash -c "export EXTENSION_DIR=/root/slicer/packages; xvfb-run --auto-se
 
 # Trajectory Tracing
 WORKDIR /root
-RUN cd /root/slicer/modules \
+RUN mkdir -p /root/slicer/modules \
     && cd /root/slicer/modules \
     && git clone https://github.com/rosmed/robot_trajectory_trace_SlicerROS2 \
     && /bin/bash -c "export MODULE_DIR=/root/slicer/modules/robot_trajectory_trace_SlicerROS2/TrajectoryGenerator/RobotTrajectoryGenerator; xvfb-run --auto-servernum /root/slicer/Slicer-SuperBuild-Release/Slicer-build/Slicer --no-main-window --no-splash --python-script /root/slicer/install-module.py"

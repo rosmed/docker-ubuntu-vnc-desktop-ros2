@@ -4,12 +4,97 @@
 # base system
 ################################################################################
 
-FROM rosmed/docker-ubuntu-vnc-desktop-slicerros2:ismr2025 as system
+FROM rosmed/docker-ubuntu-vnc-desktop-slicer:ismr2025 AS system
 
 ################################################################################
-# Libraries for ISMR 2021 Tutorial
+# Slicer Extensions for ISMR2025
 ################################################################################
 WORKDIR /root
+
+
+#
+# SlicerOpenIGTLink
+#
+RUN mkdir -p /root/slicer/modules \
+    && cd /root/slicer/modules \
+    && git clone https://github.com/openigtlink/SlicerOpenIGTLink \
+    && mkdir SlicerOpenIGTLink-build \
+    && cd SlicerOpenIGTLink-build \
+    && cmake -DCMAKE_BUILD_TYPE:STRING=Release -DSlicer_DIR:PATH=/root/slicer/Slicer-SuperBuild-Release/Slicer-build ../SlicerOpenIGTLink \
+    && make -j4
+
+#
+# SlicerIGSIO
+#
+RUN mkdir -p /root/slicer/modules \
+    && cd /root/slicer/modules \
+    && git clone https://github.com/IGSIO/SlicerIGSIO\
+    && mkdir SlicerIGSIO-build \
+    && cd SlicerIGSIO-build \
+    && cmake -DCMAKE_BUILD_TYPE:STRING=Release -DSlicer_DIR:PATH=/root/slicer/Slicer-SuperBuild-Release/Slicer-build ../SlicerIGSIO \
+    && make -j4
+
+#
+# SlicerIGT
+#
+RUN mkdir -p /root/slicer/modules \
+    && cd /root/slicer/modules \
+    && git clone https://github.com/SlicerIGT/SlicerIGT\
+    && mkdir SlicerIGT-build \
+    && cd SlicerIGT-build \
+    && cmake -DCMAKE_BUILD_TYPE:STRING=Release -DSlicer_DIR:PATH=/root/slicer/Slicer-SuperBuild-Release/Slicer-build -DSlicerIGSIO_DIR:PATH=/root/slicer/modules/SlicerIGSIO-build/inner-build ../SlicerIGT \
+    && make -j4
+
+#
+# Parallel Processing
+#
+RUN mkdir -p /root/slicer/modules \
+    && cd /root/slicer/modules \
+    && git clone https://github.com/pieper/SlicerParallelProcessing \
+    && mkdir SlicerParallelProcessing-build \
+    && cd SlicerParallelProcessing-build \
+    && cmake -DCMAKE_BUILD_TYPE:STRING=Release -DSlicer_DIR:PATH=/root/slicer/Slicer-SuperBuild-Release/Slicer-build ../SlicerParallelProcessing \
+    && make -j4
+
+#
+# SlicerDevelopmentToolbox
+#
+RUN mkdir -p /root/slicer/modules \
+    && cd /root/slicer/modules \
+    && git clone https://github.com/QIICR/SlicerDevelopmentToolbox \
+    && mkdir SlicerDevelopmentToolbox-build \
+    && cd SlicerDevelopmentToolbox-build \
+    && cmake -DCMAKE_BUILD_TYPE:STRING=Release -DSlicer_DIR:PATH=/root/slicer/Slicer-SuperBuild-Release/Slicer-build ../SlicerDevelopmentToolbox \
+    && make -j4
+
+#
+# ZFrameRegistration-3DSlicer
+# (Modified version with different ZFrame model selection)
+#
+RUN mkdir -p /root/slicer/modules \
+    && cd /root/slicer/modules \
+    && git clone https://github.com/maribernardes/ZFrameRegistration-3DSlicer \
+    && mkdir ZFrameRegistration-build \
+    && cd ZFrameRegistration-build \
+    && cmake -DCMAKE_BUILD_TYPE:STRING=Release -DSlicer_DIR:PATH=/root/slicer/Slicer-SuperBuild-Release/Slicer-build ../ZFrameRegistration-3DSlicer \
+    && make -j4
+
+
+#
+# SlicerUltrasound
+#
+RUN mkdir -p /root/slicer/modules \
+    && cd /root/slicer/modules \
+    && git clone https://github.com/SlicerUltrasound/SlicerUltrasound \
+    && mkdir SlicerUltrasound-build \
+    && cd SlicerUltrasound-build \
+    && cmake -DCMAKE_BUILD_TYPE:STRING=Release -DSlicer_DIR:PATH=/root/slicer/Slicer-SuperBuild-Release/Slicer-build ../SlicerUltrasound \
+    && make -j4
+
+
+################################################################################
+# Build packages
+################################################################################
 
 #
 # Slicer Package
@@ -76,3 +161,13 @@ RUN cd /root/slicer/modules \
     && make package \
     && mkdir -p /root/slicer/packages \
     && mv *.tar.gz /root/slicer/packages
+
+#
+# SlicerUltrasound
+#
+RUN cd /root/slicer/modules \
+    && cd SlicerUltrasound-build \
+    && make package \
+    && mkdir -p /root/slicer/packages \
+    && mv *.tar.gz /root/slicer/packages
+

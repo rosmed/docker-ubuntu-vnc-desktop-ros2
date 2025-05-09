@@ -1,17 +1,11 @@
-# Built with arch: amd64 flavor: lxde image: ubuntu:20.04
-#
 ################################################################################
-# base system
+# 3D Slicer for ISMR 2021 Tutorial
 ################################################################################
 
-#FROM ubuntu:20.04 as system
-#FROM ros:foxy-ros-base as system
 #FROM ros:galactic-ros-base as system
-FROM rosmed/docker-ubuntu-vnc-desktop-base:ismr2025 as system
+FROM rosmed/docker-ubuntu-vnc-desktop-base:ismr2025 AS system
 
-################################################################################
-# Libraries for ISMR 2021 Tutorial
-################################################################################
+
 WORKDIR /root
 
 #
@@ -25,97 +19,3 @@ RUN mkdir /root/slicer \
     && cmake -DCMAKE_BUILD_TYPE:STRING=Release -DSlicer_USE_SYSTEM_OpenSSL=ON ../Slicer \
     && make -j4
 
-#
-# Slicer Package
-#
-RUN cd /root/slicer/Slicer-SuperBuild-Release/Slicer-build \
-    && make package \
-    && mkdir -p /root/slicer/packages \
-    && mv _CPack_Packages/linux-amd64/TGZ/Slicer*.tar.gz /root/slicer/packages
-
-#
-# SlicerOpenIGTLink
-#
-RUN mkdir -p /root/slicer/modules \
-    && cd /root/slicer/modules \
-    && git clone https://github.com/openigtlink/SlicerOpenIGTLink \
-    && mkdir SlicerOpenIGTLink-build \
-    && cd SlicerOpenIGTLink-build \
-    && cmake -DCMAKE_BUILD_TYPE:STRING=Release -DSlicer_DIR:PATH=/root/slicer/Slicer-SuperBuild-Release/Slicer-build ../SlicerOpenIGTLink \
-    && make -j4 \
-    && cd inner-build \
-    && make package \
-    && mv *.tar.gz /root/slicer/packages
-
-#
-# SlicerIGSIO
-#
-RUN mkdir -p /root/slicer/modules \
-    && cd /root/slicer/modules \
-    && git clone https://github.com/IGSIO/SlicerIGSIO\
-    && mkdir SlicerIGSIO-build \
-    && cd SlicerIGSIO-build \
-    && cmake -DCMAKE_BUILD_TYPE:STRING=Release -DSlicer_DIR:PATH=/root/slicer/Slicer-SuperBuild-Release/Slicer-build ../SlicerIGSIO \
-    && make -j4 \
-    && cd inner-build \
-    && make package \
-    && mkdir -p /root/slicer/packages \
-    && mv *.tar.gz /root/slicer/packages
-
-
-#
-# SlicerIGT
-#
-RUN mkdir -p /root/slicer/modules \
-    && cd /root/slicer/modules \
-    && git clone https://github.com/SlicerIGT/SlicerIGT\
-    && mkdir SlicerIGT-build \
-    && cd SlicerIGT-build \
-    && cmake -DCMAKE_BUILD_TYPE:STRING=Release -DSlicer_DIR:PATH=/root/slicer/Slicer-SuperBuild-Release/Slicer-build -DSlicerIGSIO_DIR:PATH=/root/slicer/modules/SlicerIGSIO-build/inner-build ../SlicerIGT \
-    && make -j4 \
-    && make package \
-    && mkdir -p /root/slicer/packages \
-    && mv *.tar.gz /root/slicer/packages
-
-#
-# Parallel Processing
-#
-RUN mkdir -p /root/slicer/modules \
-    && cd /root/slicer/modules \
-    && git clone https://github.com/pieper/SlicerParallelProcessing \
-    && mkdir SlicerParallelProcessing-build \
-    && cd SlicerParallelProcessing-build \
-    && cmake -DCMAKE_BUILD_TYPE:STRING=Release -DSlicer_DIR:PATH=/root/slicer/Slicer-SuperBuild-Release/Slicer-build ../SlicerParallelProcessing \
-    && make -j4 \
-    && make package \
-    && mkdir -p /root/slicer/packages \
-    && mv *.tar.gz /root/slicer/packages
-
-#
-# SlicerDevelopmentToolbox
-#
-RUN mkdir -p /root/slicer/modules \
-    && cd /root/slicer/modules \
-    && git clone https://github.com/QIICR/SlicerDevelopmentToolbox \
-    && mkdir SlicerDevelopmentToolbox-build \
-    && cd SlicerDevelopmentToolbox-build \
-    && cmake -DCMAKE_BUILD_TYPE:STRING=Release -DSlicer_DIR:PATH=/root/slicer/Slicer-SuperBuild-Release/Slicer-build ../SlicerDevelopmentToolbox \
-    && make -j4 \
-    && make package \
-    && mkdir -p /root/slicer/packages \
-    && mv *.tar.gz /root/slicer/packages
-
-#
-# ZFrameRegistration-3DSlicer
-# (Modified version with different ZFrame model selection)
-#
-RUN mkdir -p /root/slicer/modules \
-    && cd /root/slicer/modules \
-    && git clone https://github.com/maribernardes/ZFrameRegistration-3DSlicer \
-    && mkdir ZFrameRegistration-build \
-    && cd ZFrameRegistration-build \
-    && cmake -DCMAKE_BUILD_TYPE:STRING=Release -DSlicer_DIR:PATH=/root/slicer/Slicer-SuperBuild-Release/Slicer-build ../ZFrameRegistration-3DSlicer \
-    && make -j4 \
-    && make package \
-    && mkdir -p /root/slicer/packages \
-    && mv *.tar.gz /root/slicer/packages
