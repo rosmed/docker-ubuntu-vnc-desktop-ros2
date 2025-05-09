@@ -1,0 +1,78 @@
+# Built with arch: amd64 flavor: lxde image: ubuntu:20.04
+#
+################################################################################
+# base system
+################################################################################
+
+FROM rosmed/docker-ubuntu-vnc-desktop-slicerros2:ismr2025 as system
+
+################################################################################
+# Libraries for ISMR 2021 Tutorial
+################################################################################
+WORKDIR /root
+
+#
+# Slicer Package
+#
+RUN cd /root/slicer/Slicer-SuperBuild-Release/Slicer-build \
+    && make package \
+    && mkdir -p /root/slicer/packages \
+    && mv _CPack_Packages/linux-amd64/TGZ/Slicer*.tar.gz /root/slicer/packages
+
+#
+# SlicerOpenIGTLink
+#
+RUN cd /root/slicer/modules \
+    && cd SlicerOpenIGTLink-build \
+    && cd inner-build \
+    && make package \
+    && mkdir -p /root/slicer/packages \
+    && mv *.tar.gz /root/slicer/packages
+
+#
+# SlicerIGSIO
+#
+RUN cd /root/slicer/modules \
+    && cd SlicerIGSIO-build \
+    && cd inner-build \
+    && make package \
+    && mkdir -p /root/slicer/packages \
+    && mv *.tar.gz /root/slicer/packages
+
+
+#
+# SlicerIGT
+#
+RUN cd /root/slicer/modules \
+    && cd SlicerIGT-build \
+    && make package \
+    && mkdir -p /root/slicer/packages \
+    && mv *.tar.gz /root/slicer/packages
+
+#
+# Parallel Processing
+#
+RUN cd /root/slicer/modules \
+    && cd SlicerParallelProcessing-build \
+    && make package \
+    && mkdir -p /root/slicer/packages \
+    && mv *.tar.gz /root/slicer/packages
+
+#
+# SlicerDevelopmentToolbox
+#
+RUN cd /root/slicer/modules \
+    && cd SlicerDevelopmentToolbox-build \
+    && make package \
+    && mkdir -p /root/slicer/packages \
+    && mv *.tar.gz /root/slicer/packages
+
+#
+# ZFrameRegistration-3DSlicer
+# (Modified version with different ZFrame model selection)
+#
+RUN cd /root/slicer/modules \
+    && cd ZFrameRegistration-build \
+    && make package \
+    && mkdir -p /root/slicer/packages \
+    && mv *.tar.gz /root/slicer/packages
