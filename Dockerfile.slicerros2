@@ -15,22 +15,25 @@ FROM rosmed/docker-ubuntu-vnc-desktop-slicer:ismr2025 as system
 # Additional ROS2 packages (dVRK)
 #
 
-WORKDIR /root
-RUN apt install -y python3-vcstool python3-colcon-common-extensions \
+#WORKDIR /root
+RUN apt update \
+    && apt install -y python3-vcstool python3-colcon-common-extensions \
     && apt install -y python3-pykdl \
-    && apt install -y libxml2-dev libraw1394-dev libncurses5-dev qtcreator swig sox espeak cmake-curses-gui cmake-qt-gui git subversion gfortran libcppunit-dev libqt5xmlpatterns5-dev libbluetooth-dev \
-    && apt install -y ros-jazzy-joint-state-publisher* ros-jazzy-xacro
+    && apt install -y libxml2-dev libraw1394-dev libncurses5-dev qtcreator \
+    && apt install -y swig sox espeak cmake-curses-gui cmake-qt-gui git \
+    && apt install -y subversion gfortran libcppunit-dev libqt5xmlpatterns5-dev libbluetooth-dev \
+    && apt install -y ros-jazzy-joint-state-publisher* ros-jazzy-xacro \
+    && apt install -y ros-jazzy-object-recognition-msgs ros-jazzy-moveit
 
-WORKDIR /root
-RUN mkdir -p /root/ros2_ws/src \
-    && cd /root/ros2_ws/src \
-    && /bin/bash -c 'source /opt/ros/jazzy/setup.sh; vcs import --input https://raw.githubusercontent.com/jhu-dvrk/dvrk_robot_ros2/main/dvrk.vcs --recursive'
-
-
+## Following will address an issue related to deprecated pkg_resources
+#RUN apt install -y python3-pip \
+#    && pip install --upgrade --break-system-packages setuptools==66.1.1
 #
-# Build SlicerROS2
-#
-WORKDIR /root
+#WORKDIR /root
+#RUN mkdir -p /root/ros2_ws/src \
+#    && cd /root/ros2_ws/src \
+#    && /bin/bash -c 'source /opt/ros/jazzy/setup.sh; vcs import --input https://raw.githubusercontent.com/jhu-dvrk/dvrk_robot_ros2/main/dvrk.vcs --recursive'
+
 
 #
 # Build SlicerROS2
@@ -65,9 +68,9 @@ RUN /bin/bash -c "export EXTENSION_DIR=/root/slicer/packages; xvfb-run --auto-se
 # Install 3D Slicer Modules
 #
 
-# SlicerROS2
-WORKING /root
-RUN /bin/bash -c "export MODULE_DIR=/root/ros2_ws/build/ROS2/lib/Slicer-5.8/qt-loadable-modules; xvfb-run --auto-servernum /root/slicer/Slicer-SuperBuild-Release/Slicer-build/Slicer --no-main-window --no-splash --python-script /root/slicer/install-module.py"
+## SlicerROS2
+#WORKING /root
+#RUN /bin/bash -c "export MODULE_DIR=/root/ros2_ws/build/ROS2/lib/Slicer-5.8/qt-loadable-modules; xvfb-run --auto-servernum /root/slicer/Slicer-SuperBuild-Release/Slicer-build/Slicer --no-main-window --no-splash --python-script /root/slicer/install-module.py"
 
 # Trajectory Tracing
 WORKDIR /root

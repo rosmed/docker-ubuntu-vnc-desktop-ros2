@@ -6,7 +6,7 @@
 # base system
 ################################################################################
 
-FROM rosmed/docker-ubuntu-vnc-desktop-base:ismr2023 as system
+FROM rosmed/docker-ubuntu-vnc-desktop-base:ismr2025 as system
 
 #
 # Copy 3D Silcer
@@ -14,10 +14,11 @@ FROM rosmed/docker-ubuntu-vnc-desktop-base:ismr2023 as system
 
 WORKDIR /root
 RUN mkdir -p /root/slicer/packages
+
 COPY packages/* /root/slicer/packages
-RUN tar zxvf /root/slicer/packages/Slicer*.tar.gz -C /root/slicer \
-    && /bin/bash -c 'rm `find /root/slicer/packages/Slicer*.tar.gz`' \
-    && /bin/bash -c 'mv `find /root/slicer/Slicer* -maxdepth 0` /root/slicer/Slicer-5.2'
+RUN /bin/bash -c 'ls /root/slicer/packages/*-linux-amd64-*.tar.gz |xargs -n1 -I{} tar -xzf {} -C /root/slicer ' \
+    && /bin/bash -c 'rm `find /root/slicer/packages/*-linux-amd64-*.tar.gz`' \
+    && /bin/bash -c 'find /root/slicer/*-linux-amd64-* -maxdepth 0|xargs -n1 -I{} mv {} /root/slicer/Slicer-5.8'
 
 
 #
@@ -25,20 +26,21 @@ RUN tar zxvf /root/slicer/packages/Slicer*.tar.gz -C /root/slicer \
 #
 
 WORKDIR /root
-RUN apt install -y python3-vcstool python3-colcon-common-extensions \
+RUN apt update \
+    && apt install -y python3-vcstool python3-colcon-common-extensions \
     && apt install -y python3-pykdl \
     && apt install -y libxml2-dev libraw1394-dev libncurses5-dev qtcreator swig sox espeak cmake-curses-gui cmake-qt-gui git subversion gfortran libcppunit-dev libqt5xmlpatterns5-dev libbluetooth-dev \
-    && apt install -y ros-galactic-joint-state-publisher* ros-galactic-xacro
+    && apt install -y ros-jazzy-joint-state-publisher* ros-jazzy-xacro
 
-WORKDIR /root
-RUN mkdir -p /root/ros2_ws/src \
-    && cd /root/ros2_ws/src \
-    && /bin/bash -c 'source /opt/ros/galactic/setup.sh; vcs import --input https://raw.githubusercontent.com/jhu-dvrk/dvrk_robot_ros2/main/dvrk.vcs --recursive'
+#WORKDIR /root
+#RUN mkdir -p /root/ros2_ws/src \
+#    && cd /root/ros2_ws/src \
+#    && /bin/bash -c 'source /opt/ros/jazzy/setup.sh; vcs import --input https://raw.githubusercontent.com/jhu-dvrk/dvrk_robot_ros2/main/dvrk.vcs --recursive'
 
 
 COPY ros2_ws.tar.gz /root/
 RUN cd /root \
-    && tar zxvf ros2_ws.tar.gz \
+n    && tar zxvf ros2_ws.tar.gz \
     && rm ros2_ws.tar.gz
 
 #
@@ -54,7 +56,7 @@ RUN cd /root \
     && chmod 755 start-slicer-ros2.bash \
     && chmod 755 install-segmentation-unet.bash
 
-RUN /bin/bash -c "export EXTENSION_DIR=/root/slicer/packages; xvfb-run --auto-servernum /root/slicer/Slicer-5.2/Slicer --no-main-window --no-splash --python-script /root/slicer/install-extension.py" \
+RUN /bin/bash -c "export EXTENSION_DIR=/root/slicer/packages; xvfb-run --auto-servernum /root/slicer/Slicer-5.8/Slicer --no-main-window --no-splash --python-script /root/slicer/install-extension.py" \
 
 
 #
@@ -63,14 +65,14 @@ RUN /bin/bash -c "export EXTENSION_DIR=/root/slicer/packages; xvfb-run --auto-se
 
 # SlicerROS2
 WORKING /root
-RUN /bin/bash -c "export MODULE_DIR=/root/ros2_ws/build/ROS2/lib/Slicer-5.2/qt-loadable-modules; xvfb-run --auto-servernum /root/slicer/Slicer-5.2/Slicer --no-main-window --no-splash --python-script /root/slicer/install-module.py"
+RUN /bin/bash -c "export MODULE_DIR=/root/ros2_ws/build/ROS2/lib/Slicer-5.8/qt-loadable-modules; xvfb-run --auto-servernum /root/slicer/Slicer-5.8/Slicer --no-main-window --no-splash --python-script /root/slicer/install-module.py"
 
 # Trajectory Tracing
 WORKDIR /root
 RUN mkdir -p /root/slicer/modules \
     && cd /root/slicer/modules \
     && git clone https://github.com/rosmed/robot_trajectory_trace_SlicerROS2 \
-    && /bin/bash -c "export MODULE_DIR=/root/slicer/modules/robot_trajectory_trace_SlicerROS2/TrajectoryGenerator/RobotTrajectoryGenerator; xvfb-run --auto-servernum /root/slicer/Slicer-5.2/Slicer --no-main-window --no-splash --python-script /root/slicer/install-module.py"
+    && /bin/bash -c "export MODULE_DIR=/root/slicer/modules/robot_trajectory_trace_SlicerROS2/TrajectoryGenerator/RobotTrajectoryGenerator; xvfb-run --auto-servernum /root/slicer/Slicer-5.8/Slicer --no-main-window --no-splash --python-script /root/slicer/install-module.py"
 
 # AI-based Ultrasound Segmentation
 # This must be the last, because the module requires user interaction at the first launch.
@@ -84,11 +86,11 @@ RUN mkdir -p /root/slicer/modules \
     && echo 'SlicerExtension/LiveUltrasoundAi/SegmentationUNet*' > .git/info/sparse-checkout \
     && git remote add -f origin https://github.com/SlicerIGT/aigt \
     && git pull origin master
-#    && /bin/bash -c "export MODULE_DIR=/root/slicer/modules/aigt/SlicerExtension/LiveUltrasoundAi/SegmentationUNet; xvfb-run --auto-servernum /root/slicer/Slicer-5.2/Slicer --no-main-window --no-splash --python-script /root/slicer/install-module.py"
+#    && /bin/bash -c "export MODULE_DIR=/root/slicer/modules/aigt/SlicerExtension/LiveUltrasoundAi/SegmentationUNet; xvfb-run --auto-servernum /root/slicer/Slicer-5.8/Slicer --no-main-window --no-splash --python-script /root/slicer/install-module.py"
 
 
 
 # ISMR Tutorial Data
 WORKDIR /root
 RUN cd /root \
-    && git clone https://github.com/rosmed/ismr2023_files
+    && git clone https://github.com/rosmed/ismr2025

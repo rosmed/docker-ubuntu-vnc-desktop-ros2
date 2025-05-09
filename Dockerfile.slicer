@@ -31,7 +31,7 @@ RUN mkdir /root/slicer \
 RUN cd /root/slicer/Slicer-SuperBuild-Release/Slicer-build \
     && make package \
     && mkdir -p /root/slicer/packages \
-    && mv *.tar.gz /root/slicer/packages
+    && mv _CPack_Packages/linux-amd64/TGZ/Slicer*.tar.gz /root/slicer/packages
 
 #
 # SlicerOpenIGTLink
@@ -86,6 +86,35 @@ RUN mkdir -p /root/slicer/modules \
     && mkdir SlicerParallelProcessing-build \
     && cd SlicerParallelProcessing-build \
     && cmake -DCMAKE_BUILD_TYPE:STRING=Release -DSlicer_DIR:PATH=/root/slicer/Slicer-SuperBuild-Release/Slicer-build ../SlicerParallelProcessing \
+    && make -j4 \
+    && make package \
+    && mkdir -p /root/slicer/packages \
+    && mv *.tar.gz /root/slicer/packages
+
+#
+# SlicerDevelopmentToolbox
+#
+RUN mkdir -p /root/slicer/modules \
+    && cd /root/slicer/modules \
+    && git clone https://github.com/QIICR/SlicerDevelopmentToolbox \
+    && mkdir SlicerDevelopmentToolbox-build \
+    && cd SlicerDevelopmentToolbox-build \
+    && cmake -DCMAKE_BUILD_TYPE:STRING=Release -DSlicer_DIR:PATH=/root/slicer/Slicer-SuperBuild-Release/Slicer-build ../SlicerDevelopmentToolbox \
+    && make -j4 \
+    && make package \
+    && mkdir -p /root/slicer/packages \
+    && mv *.tar.gz /root/slicer/packages
+
+#
+# ZFrameRegistration-3DSlicer
+# (Modified version with different ZFrame model selection)
+#
+RUN mkdir -p /root/slicer/modules \
+    && cd /root/slicer/modules \
+    && git clone https://github.com/maribernardes/ZFrameRegistration-3DSlicer \
+    && mkdir ZFrameRegistration-build \
+    && cd ZFrameRegistration-build \
+    && cmake -DCMAKE_BUILD_TYPE:STRING=Release -DSlicer_DIR:PATH=/root/slicer/Slicer-SuperBuild-Release/Slicer-build ../ZFrameRegistration-3DSlicer \
     && make -j4 \
     && make package \
     && mkdir -p /root/slicer/packages \
