@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+source /opt/ros/jazzy/setup.bash
 export MODULE_DIR=/root/slicer/modules/aigt/SlicerExtension/LiveUltrasoundAi/SegmentationUNet
 
 # if the file exists, then run it

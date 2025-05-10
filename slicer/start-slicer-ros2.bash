@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-source /root/ros2_ws/install/setup.bash
+source /opt/ros/jazzy/setup.bash
 
 # if the file exists, then run it
 if [ -f /root/slicer/Slicer-5.8/Slicer ]; then

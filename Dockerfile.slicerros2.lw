@@ -61,7 +61,9 @@ RUN cd /root \
     && chmod 755 start-slicer-ros2.bash \
     && chmod 755 install-segmentation-unet.bash
 
-RUN /bin/bash -c "export EXTENSION_DIR=/root/slicer/packages; xvfb-run --auto-servernum /root/slicer/Slicer-5.8/Slicer --no-main-window --no-splash --python-script /root/slicer/install-extension.py" \
+# ROS setup is skipped here to avoid errors.
+#RUN /bin/bash -c "source /opt/ros/jazzy/setup.bash; export EXTENSION_DIR=/root/slicer/packages; xvfb-run --auto-servernum /root/slicer/Slicer-5.8/Slicer --no-main-window --no-splash --python-script /root/slicer/install-extension.py"
+RUN /bin/bash -c "export EXTENSION_DIR=/root/slicer/packages; xvfb-run --auto-servernum /root/slicer/Slicer-5.8/Slicer --no-main-window --no-splash --python-script /root/slicer/install-extension.py"
 
 
 #
@@ -69,14 +71,15 @@ RUN /bin/bash -c "export EXTENSION_DIR=/root/slicer/packages; xvfb-run --auto-se
 #
 
 # SlicerROS2
-WORKING /root
-RUN /bin/bash -c "export MODULE_DIR=/root/ros2_ws/build/ROS2/lib/Slicer-5.8/qt-loadable-modules; xvfb-run --auto-servernum /root/slicer/Slicer-5.8/Slicer --no-main-window --no-splash --python-script /root/slicer/install-module.py"
+#WORKING /root
+#RUN /bin/bash -c "source /opt/ros/jazzy/setup.bash; export MODULE_DIR=/root/ros2_ws/build/ROS2/lib/Slicer-5.8/qt-loadable-modules; xvfb-run --auto-servernum /root/slicer/Slicer-5.8/Slicer --no-main-window --no-splash --python-script /root/slicer/install-module.py"
 
 # Trajectory Tracing
 WORKDIR /root
 RUN mkdir -p /root/slicer/modules \
     && cd /root/slicer/modules \
     && git clone https://github.com/rosmed/robot_trajectory_trace_SlicerROS2 \
+#    && /bin/bash -c "source /opt/ros/jazzy/setup.bash; export MODULE_DIR=/root/slicer/modules/robot_trajectory_trace_SlicerROS2/TrajectoryGenerator/RobotTrajectoryGenerator; xvfb-run --auto-servernum /root/slicer/Slicer-5.8/Slicer --no-main-window --no-splash --python-script /root/slicer/install-module.py"
     && /bin/bash -c "export MODULE_DIR=/root/slicer/modules/robot_trajectory_trace_SlicerROS2/TrajectoryGenerator/RobotTrajectoryGenerator; xvfb-run --auto-servernum /root/slicer/Slicer-5.8/Slicer --no-main-window --no-splash --python-script /root/slicer/install-module.py"
 
 # AI-based Ultrasound Segmentation
@@ -90,8 +93,9 @@ RUN mkdir -p /root/slicer/modules \
     && git config core.sparsecheckout true \
     && echo 'SlicerExtension/LiveUltrasoundAi/SegmentationUNet*' > .git/info/sparse-checkout \
     && git remote add -f origin https://github.com/SlicerIGT/aigt \
-    && git pull origin master
-#    && /bin/bash -c "export MODULE_DIR=/root/slicer/modules/aigt/SlicerExtension/LiveUltrasoundAi/SegmentationUNet; xvfb-run --auto-servernum /root/slicer/Slicer-5.8/Slicer --no-main-window --no-splash --python-script /root/slicer/install-module.py"
+    && git pull origin master \
+#    && /bin/bash -c "source /opt/ros/jazzy/setup.bash; export MODULE_DIR=/root/slicer/modules/aigt/SlicerExtension/LiveUltrasoundAi/SegmentationUNet; xvfb-run --auto-servernum /root/slicer/Slicer-5.8/Slicer --no-main-window --no-splash --python-script /root/slicer/install-module.py"
+    && /bin/bash -c "export MODULE_DIR=/root/slicer/modules/aigt/SlicerExtension/LiveUltrasoundAi/SegmentationUNet; xvfb-run --auto-servernum /root/slicer/Slicer-5.8/Slicer --no-main-window --no-splash --python-script /root/slicer/install-module.py"
 
 WORKDIR /root
 RUN mkdir -p ambf_ws \
@@ -102,7 +106,7 @@ RUN mkdir -p ambf_ws \
     && cd ambf \
     && git checkout ros2-support \
     && cd /root/ambf_ws \
-    && /bin/bash -c 'source /opt/ros/jazzy/setup.sh; colcon build'
+    && /bin/bash -c 'source /opt/ros/jazzy/setup.bash; colcon build'
 
 # ISMR Tutorial Data
 WORKDIR /root
