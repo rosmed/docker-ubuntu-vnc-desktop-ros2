@@ -15,20 +15,9 @@ FROM rosmed/docker-ubuntu-vnc-desktop-base:ismr2025 as system
 WORKDIR /root
 RUN mkdir -p /root/slicer/packages
 
-COPY packages/* /root/slicer/packages
-#RUN /bin/bash -c 'ls /root/slicer/packages/*-linux-amd64-*.tar.gz |xargs -n1 -I{} tar -xzf {} -C /root/slicer ' \
-#    && /bin/bash -c 'rm `find /root/slicer/packages/*-linux-amd64-*.tar.gz`' \
-#    && /bin/bash -c 'find /root/slicer/*-linux-amd64-* -maxdepth 0|xargs -n1 -I{} mv {} /root/slicer/Slicer-5.8'
-
-RUN /bin/bash -c 'ls /root/slicer/packages/*-linux-amd64-SlicerROS2*.tar.gz |xargs -n1 -I{} tar -xzf {} -C /root/slicer ' \
-    && /bin/bash -c 'rm `find /root/slicer/packages/*-linux-amd64-SlicerROS2*.tar.gz`' \
-    && /bin/bash -c 'find /root/slicer/*-linux-amd64-SlicerROS2* -maxdepth 0|xargs -n1 -I{} mv {} /root/slicer/Slicer-5.8'
-
-
 #
 # Additional ROS2 packages (dVRK) + ros2 workspace
 #
-
 WORKDIR /root
 RUN apt update \
     && apt install -y python3-vcstool python3-colcon-common-extensions \
@@ -51,9 +40,18 @@ RUN apt-get update \
 #    && rm ros2_ws.tar.gz
 
 #
-# Install 3D Slicer Extensions
+# Install 3D Slicer and Extensions
 #
+#RUN /bin/bash -c 'ls /root/slicer/packages/*-linux-amd64-*.tar.gz |xargs -n1 -I{} tar -xzf {} -C /root/slicer ' \
+#    && /bin/bash -c 'rm `find /root/slicer/packages/*-linux-amd64-*.tar.gz`' \
+#    && /bin/bash -c 'find /root/slicer/*-linux-amd64-* -maxdepth 0|xargs -n1 -I{} mv {} /root/slicer/Slicer-5.8'
+#RUN /bin/bash -c 'ls /root/slicer/packages/*-linux-amd64-SlicerROS2*.tar.gz |xargs -n1 -I{} tar -xzf {} -C /root/slicer ' \
+#    && /bin/bash -c 'rm `find /root/slicer/packages/*-linux-amd64-SlicerROS2*.tar.gz`' \
+#    && /bin/bash -c 'find /root/slicer/*-linux-amd64-SlicerROS2* -maxdepth 0|xargs -n1 -I{} mv {} /root/slicer/Slicer-5.8'
 
+COPY Slicer-5.8 /root/slicer/Slicer-5.8
+
+COPY packages/* /root/slicer/packages
 COPY slicer/install-extension.py /root/slicer
 COPY slicer/install-module.py /root/slicer
 COPY slicer/start-slicer-ros2.bash /root
