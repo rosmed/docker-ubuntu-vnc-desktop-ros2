@@ -17,13 +17,19 @@ FROM rosmed/docker-ubuntu-vnc-desktop-slicer:ismr2025 as system
 
 #WORKDIR /root
 RUN apt update \
-    && apt install -y python3-vcstool python3-colcon-common-extensions \
-    && apt install -y python3-pykdl \
-    && apt install -y libxml2-dev libraw1394-dev libncurses5-dev qtcreator \
-    && apt install -y swig sox espeak cmake-curses-gui cmake-qt-gui git \
-    && apt install -y subversion gfortran libcppunit-dev libqt5xmlpatterns5-dev libbluetooth-dev \
-    && apt install -y ros-jazzy-joint-state-publisher* ros-jazzy-xacro \
-    && apt install -y ros-jazzy-object-recognition-msgs ros-jazzy-moveit
+    && apt-get install -y python3-vcstool python3-colcon-common-extensions \
+    && apt-get install -y python3-pykdl \
+    && apt-get install -y libxml2-dev libraw1394-dev libncurses5-dev qtcreator \
+    && apt-get install -y swig sox espeak cmake-curses-gui cmake-qt-gui git \
+    && apt-get install -y subversion gfortran libcppunit-dev libqt5xmlpatterns5-dev libbluetooth-dev \
+    && apt-get install -y ros-jazzy-joint-state-publisher* ros-jazzy-xacro \
+    && apt-get install -y ros-jazzy-object-recognition-msgs ros-jazzy-moveit
+
+RUN apt update \
+    && apt-get install -y libxcursor-dev \
+    && apt-get install -y libxinerama-dev \
+    && apt-get install -y libasound2-dev libgl1-mesa-dev xorg-dev \
+    && apt-get install -y libusb-1.0.0-dev
 
 ## Following will address an issue related to deprecated pkg_resources
 #RUN apt install -y python3-pip \
@@ -33,7 +39,6 @@ RUN apt update \
 #RUN mkdir -p /root/ros2_ws/src \
 #    && cd /root/ros2_ws/src \
 #    && /bin/bash -c 'source /opt/ros/jazzy/setup.sh; vcs import --input https://raw.githubusercontent.com/jhu-dvrk/dvrk_robot_ros2/main/dvrk.vcs --recursive'
-
 
 #
 # Build SlicerROS2
@@ -47,6 +52,16 @@ RUN mkdir -p /root/ros2_ws/src \
     && git clone https://github.com/rosmed/slicer_ros2_module \
     && cd /root/ros2_ws \
     && /bin/bash -c 'source /opt/ros/jazzy/setup.sh; colcon build --cmake-args -DSlicer_DIR:PATH=/root/slicer/Slicer-SuperBuild-Release/Slicer-build -DCMAKE_BUILD_TYPE=Release'
+
+##
+## Package SlicerROS2
+##
+#WORKDIR /root
+#RUN mkdir -p /root/slicer/ \
+#    && mkdir -p /root/slicer/packages \
+#    && cd /root//slicer/packages \
+#    && /bin/bash -c 'source /opt/ros/jazzy/setup.sh; python /root/ros2_ws/src/slicer_ros2_module/do-release.py -b /root/slicer/Slicer-SuperBuild-Release/Slicer-build -v 1.0'
+
 
 #
 # Install 3D Slicer Extensions
@@ -95,8 +110,19 @@ RUN cd /root/slicer/modules \
     && git pull origin master
 #    && /bin/bash -c "export MODULE_DIR=/root/slicer/modules/aigt/SlicerExtension/LiveUltrasoundAi/SegmentationUNet; xvfb-run --auto-servernum /root/slicer/Slicer-SuperBuild-Release/Slicer-build/Slicer --no-main-window --no-splash --python-script /tmp/install-module.py"
 
+WORKDIR /root
+RUN mkdir -p ambf_ws \
+    && cd ambf_ws \
+    && mkdir -p src \
+    && cd src \
+    && git clone https://github.com/LauraConnolly/ambf \
+    && cd ambf \
+    && git checkout ros2-support \
+    && cd /root/ambf_ws \
+    && /bin/bash -c 'source /opt/ros/jazzy/setup.sh; colcon build'
+
 
 # ISMR Tutorial Data
-#WORKDIR /root
-#RUN cd /root \
-#    && git clone https://github.com/rosmed/ismr2023_files
+WORKDIR /root
+RUN cd /root \
+    && git clone https://github.com/rosmed/ismr2025

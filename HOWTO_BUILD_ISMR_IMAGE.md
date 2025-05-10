@@ -53,6 +53,20 @@ Build SlicerROS
 docker build -f Dockerfile.slicerros2 . -t rosmed/docker-ubuntu-vnc-desktop-slicerros2:ismr2025
 ~~~~
 
+Make SlicerROS package
+-----------------------
+
+~~~~
+docker run -it --rm -p 6080:80 rosmed/docker-ubuntu-vnc-desktop-slicerros2package:ismr2025
+~~~~
+
+~~~~
+docker cp <container ID>:/root/slicer/packages .
+~~~~
+
+
+
+
 
 Uploading the docker images
 ----------------------------

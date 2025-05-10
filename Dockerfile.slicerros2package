@@ -1,0 +1,22 @@
+# Built with arch: amd64 flavor: lxde image: ubuntu:20.04
+#
+################################################################################
+# base system
+################################################################################
+
+
+#FROM ubuntu:20.04 as system
+#FROM ros:foxy-ros-base as system
+#FROM ros:galactic-ros-base as system
+FROM rosmed/docker-ubuntu-vnc-desktop-slicerros2:ismr2025 as system
+
+
+#
+# Package SlicerROS2
+#
+COPY slicer/do-release.py /root
+WORKDIR /root
+RUN mkdir -p /root/slicer/ \
+    && mkdir -p /root/slicer/packages \
+    && cd /root/slicer/packages \
+    && /bin/bash -c 'source /opt/ros/jazzy/setup.sh; python /root/do-release.py -b /root/slicer/Slicer-SuperBuild-Release/Slicer-build -v 1.0'
