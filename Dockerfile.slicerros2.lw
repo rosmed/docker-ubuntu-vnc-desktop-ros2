@@ -112,3 +112,15 @@ RUN mkdir -p ambf_ws \
 WORKDIR /root
 RUN cd /root \
     && git clone https://github.com/rosmed/ismr2025
+
+#
+# Smart Template Demo Package
+#
+
+WORKDIR /root
+RUN mkdir -p /root/ros_ws/src \
+    && cd ros_ws/src \
+    && git clone https://github.com/maribernardes/ros2_smart_template_demo \
+    && cd /root/ros_ws \
+    && source /opt/ros/jazzy/setup.bash \
+    && /bin/bash -c 'source /opt/ros/jazzy/setup.bash; colcon build'
