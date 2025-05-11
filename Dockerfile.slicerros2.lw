@@ -82,20 +82,20 @@ RUN mkdir -p /root/slicer/modules \
 #    && /bin/bash -c "source /opt/ros/jazzy/setup.bash; export MODULE_DIR=/root/slicer/modules/robot_trajectory_trace_SlicerROS2/TrajectoryGenerator/RobotTrajectoryGenerator; xvfb-run --auto-servernum /root/slicer/Slicer-5.8/Slicer --no-main-window --no-splash --python-script /root/slicer/install-module.py"
     && /bin/bash -c "export MODULE_DIR=/root/slicer/modules/robot_trajectory_trace_SlicerROS2/TrajectoryGenerator/RobotTrajectoryGenerator; xvfb-run --auto-servernum /root/slicer/Slicer-5.8/Slicer --no-main-window --no-splash --python-script /root/slicer/install-module.py"
 
-# AI-based Ultrasound Segmentation
-# This must be the last, because the module requires user interaction at the first launch.
-WORKDIR /root
-RUN mkdir -p /root/slicer/modules \
-    && cd /root/slicer/modules \
-    && mkdir aigt \
-    && cd aigt \
-    && git init \
-    && git config core.sparsecheckout true \
-    && echo 'SlicerExtension/LiveUltrasoundAi/SegmentationUNet*' > .git/info/sparse-checkout \
-    && git remote add -f origin https://github.com/SlicerIGT/aigt \
-    && git pull origin master \
-#    && /bin/bash -c "source /opt/ros/jazzy/setup.bash; export MODULE_DIR=/root/slicer/modules/aigt/SlicerExtension/LiveUltrasoundAi/SegmentationUNet; xvfb-run --auto-servernum /root/slicer/Slicer-5.8/Slicer --no-main-window --no-splash --python-script /root/slicer/install-module.py"
-    && /bin/bash -c "export MODULE_DIR=/root/slicer/modules/aigt/SlicerExtension/LiveUltrasoundAi/SegmentationUNet; xvfb-run --auto-servernum /root/slicer/Slicer-5.8/Slicer --no-main-window --no-splash --python-script /root/slicer/install-module.py"
+## AI-based Ultrasound Segmentation
+## This must be the last, because the module requires user interaction at the first launch.
+#WORKDIR /root
+#RUN mkdir -p /root/slicer/modules \
+#    && cd /root/slicer/modules \
+#    && mkdir aigt \
+#    && cd aigt \
+#    && git init \
+#    && git config core.sparsecheckout true \
+#    && echo 'SlicerExtension/LiveUltrasoundAi/SegmentationUNet*' > .git/info/sparse-checkout \
+#    && git remote add -f origin https://github.com/SlicerIGT/aigt \
+#    && git pull origin master \
+##    && /bin/bash -c "source /opt/ros/jazzy/setup.bash; export MODULE_DIR=/root/slicer/modules/aigt/SlicerExtension/LiveUltrasoundAi/SegmentationUNet; xvfb-run --auto-servernum /root/slicer/Slicer-5.8/Slicer --no-main-window --no-splash --python-script /root/slicer/install-module.py"
+#    && /bin/bash -c "export MODULE_DIR=/root/slicer/modules/aigt/SlicerExtension/LiveUltrasoundAi/SegmentationUNet; xvfb-run --auto-servernum /root/slicer/Slicer-5.8/Slicer --no-main-window --no-splash --python-script /root/slicer/install-module.py"
 
 WORKDIR /root
 RUN mkdir -p ambf_ws \
